@@ -1,400 +1,372 @@
 import React from 'react';
+import '../Styles/filter.css';
 import queryString from 'query-string';
 import axios from 'axios';
-import '../Styles/details.css';
-import Modal from 'react-modal';
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { NavLink } from "react-router-dom";
-import { Carousel } from 'react-responsive-carousel';
-
-
-const customStyles = {
-    content: {
-
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-       borderRadius:'6px',
-        padding: '0px'
-    },
-};
-
-
-class Details extends React.Component {
+class Filter extends React.Component {
     constructor() {
         super();
         this.state = {
-            restaurants: {},
-            itemsModalIsOpen: false,
-            formModalIsOpen: false,
-            galleryModalIsOpen: false,
-            paymentmodalisopen: false,
-            restaurantId: undefined,
-            menuItems: [],
-            subTotal: 0,
-            firstname: '',
-            lastname: '',
-            email: '',
-            phNumber: '',
-            address: '',
-            resname:''
-           
+            restaurants: [],
+            locations: [],
+            location: undefined,
+            mealtype: undefined,
+            cuisine: [],
+            lcost: undefined,
+            hcost: undefined,
+            sort: undefined,
+            lrating:undefined,
+            hrating:undefined,
+            pageCount:[]
 
         }
     }
     componentDidMount() {
         const qs = queryString.parse(this.props.location.search);
-        const { restaurant } = qs;
-        axios({
-            url: `http://localhost:2022/restaurant/${restaurant}`,
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(respone => {
-                this.setState({ restaurants: respone.data.restaurants, restaurantId: restaurant, resname: respone.data.restaurants.name })
-            })
-            .catch()
-
-    }
-    handleOrder = () => {
-        const { restaurantId, menuItems } = this.state;
-        axios({
-            url: `http://localhost:2022/menuitems/${restaurantId}`,
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(respone => {
-                this.setState({ menuItems: respone.data.items })
-            })
-            .catch()
-
-        this.setState({ itemsModalIsOpen: true, menuItems  })
-    }
-    handlePay = () => {
-        this.setState({ formModalIsOpen: true })
-    }
-
-
-    handleModalState = () => {
-        this.setState({ galleryModalIsOpen: true })
-    }
-
-
-    handleCloseModal = (state, value) => {
-        this.setState({ [state]: value });
-    }
-    addItems = (index, operationType) => {
-        let total = 0;
-        const items = [...this.state.menuItems];
-        const item = items[index];
-
-        if (operationType == 'add') {
-            item.qty += 1;
-        }
-        else {
-            item.qty -= 1;
-        }
-        items[index] = item;
-        items.map((item) => {
-            total += item.qty * item.price;
-        })
-        this.setState({ menuItems: items, subTotal: total });
-        console.log(items);
-    }
-    handleInputChange = (event, state) => {
-        this.setState({ [state]: event.target.value });
-    }
-    isDate(val) {
-        // Cross realm comptatible
-        return Object.prototype.toString.call(val) === '[object Date]'
-    }
-
-    isObj = (val) => {
-        return typeof val === 'object'
-    }
-
-    stringifyValue = (val) => {
-        if (this.isObj(val) && !this.isDate(val)) {
-            return JSON.stringify(val)
-        } else {
-            return val
-        }
-    }
-    buildForm = ({ action, params }) => {
-        const form = document.createElement('form')
-        form.setAttribute('method', 'post')
-        form.setAttribute('action', action)
-
-        Object.keys(params).forEach(key => {
-            const input = document.createElement('input')
-            input.setAttribute('type', 'hidden')
-            input.setAttribute('name', key)
-            input.setAttribute('value', this.stringifyValue(params[key]))
-            form.appendChild(input)
-        })
-        return form
-    }
-
-    post = (details) => {
-        const form = this.buildForm(details)
-        document.body.appendChild(form)
-        form.submit()
-        form.remove()
-    }
-
-    getData = async (data) => {
-        try {
-            const response = await fetch(`http://localhost:2022/payment`, {
-                method: "POST",
-                headers: {
-                    Accept: "application/json",
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(data)
-            });
-            return await response.json();
-        } catch (err) {
-            return console.log(err);
-        }
-    }
-
-    Payment = () => {
-        const { subTotal, email } = this.state;
-
-        const paymentObj = {
-            amount: subTotal,
-            email
-        };
-
-        this.getData(paymentObj).then(response => {
-            var information = {
-                action: "https://securegw-stage.paytm.in/order/process",
-                params: response
-            }
-            this.post(information)
-        })
-    }
-    handleorders = () => {
-        const { email, password, firstname, lastname, phNumber, address, menuItems, subTotal, restaurantId,resname } = this.state;
-        const orderObj = {
-            email: email,
-            password: password,
-            firstname: firstname,
-            lastname: lastname,
-            phNumber: phNumber,
-            address: address,
-            menuItems: menuItems,
-            subTotal: subTotal,
-            restaurantId: restaurantId,
-            resname:resname
+        const { mealtype, location } = qs;
+        const filterobj = {
+            mealtype: mealtype,
+            location: location
         };
         axios({
-            url: 'http://localhost:2022/orders',
+            url: 'http://localhost:2022/filter',
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            data: orderObj
-
+            data: filterobj
         })
             .then(response => {
-                if (!email || !firstname || !lastname || !address || !phNumber) {
-                    alert(response.data.message);
-                 }
-               else{ 
-                this.setState({
-                    email:email,
-                    password: password,
-                    firstname:firstname,
-                    lastname: lastname,
-                    phNumber: phNumber,
-                    address: address,
-                    menuItems: [],
-                    menuItems:menuItems,
-                    subTotal:subTotal,
-                    restaurantId: restaurantId,
-                    resname:resname,
-                    paymentmodalisopen: true 
-                });
-            }
-               
+                this.setState({ restaurants: response.data.restaurants,mealtype,location,pageCount: response.data.pageCount})
             })
-            .catch(err => console.log(err))
+            .catch()
+            axios({
+                url: 'http://localhost:2022/locations',
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            })
+                .then(respone => {
+                    this.setState({ locations: respone.data.locations })
+                })
+                .catch()
+
+    }
+    handleLocationChange = (event) => {
+        const location= event.target.value;
+
+        const { mealtype, cuisine, lcost, hcost, sort, page } = this.state;
+
+        const filterObj = {
+            mealtype: mealtype,
+            location: location,
+            cuisine: cuisine.length === 0 ? undefined : cuisine,
+            lcost,
+            hcost,
+            sort,
+            page
+           
+        };
+
+        axios({
+            url: 'http://localhost:2022/filter',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: filterObj
+        })
+            .then(response => {
+                this.setState({ restaurants: response.data.restaurants,location,pageCount: response.data.pageCount })
+            })
+            .catch()
+
+        this.props.history.push(`/filter?mealtype=${mealtype}&location=${location}`);
+    }
+    handleSortChange = (sort) =>{
+        const { location, mealtype, cuisine, lcost, hcost, page } = this.state;
+        const filterObj ={
+            mealtype: mealtype,
+            location: location,
+            cuisine: cuisine.length === 0 ? undefined : cuisine,
+            lcost,
+            hcost,
+            page,
+            sort:sort
+        };
+        axios({
+            url: 'http://localhost:2022/filter',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: filterObj
+        })
+            .then(response => {
+                this.setState({ restaurants: response.data.restaurants,sort,pageCount: response.data.pageCount})
+            })
+            .catch()
+    }
+    handleCostChange = (lcost, hcost) => {
+
+        const { location, mealtype, cuisine, sort, page } = this.state;
+
+        const filterObj = {
+            mealtype: mealtype,
+            location: location,
+            cuisine: cuisine.length === 0 ? undefined : cuisine,
+            lcost,
+            hcost,
+            sort,
+            page
+        };
+
+        axios({
+            url: 'http://localhost:2022/filter',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: filterObj
+        })
+            .then(response => {
+                this.setState({ restaurants: response.data.restaurants, lcost, hcost,pageCount: response.data.pageCount })
+            })
+            .catch()
+    }
+    handleCuisineChange = (cuisineId) => {
+
+        const { location, mealtype, cuisine, sort, lcost, hcost, page } = this.state;
+
+        const index = cuisine.indexOf(cuisineId);
+        if (index >= 0) {
+            cuisine.splice(index, 1);
+        }
+        else {
+            cuisine.push(cuisineId);
+        }
+
+        const filterObj = {
+            mealtype: mealtype,
+            location: location,
+            cuisine: cuisine.length === 0 ? undefined : cuisine,
+            lcost,
+            hcost,
+            sort,
+            page
+        };
+        axios({
+            url: 'http://localhost:2022/filter',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: filterObj
+        })
+            .then(response => {
+                this.setState({ restaurants: response.data.restaurants,cuisine,pageCount: response.data.pageCount})
+            })
+            .catch()
+    }
+    handleRating = ( lrating,hrating) => {
+        const { location, mealtype, cuisine, sort, lcost, hcost, page } = this.state;
+        const filterObj = {
+            mealtype: mealtype,
+            location: location,
+            cuisine: cuisine.length === 0 ? undefined : cuisine,
+            lcost,
+            hcost,
+            sort,
+            lrating,
+            hrating,
+            page
+        };
+        axios({
+            url: 'http://localhost:2022/filter',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: filterObj
+        })
+            .then(response => {
+                this.setState({ restaurants: response.data.restaurants, lrating, hrating,pagecount: response.data.pagecount })
+            })
+            .catch()
+    }
 
 
+
+    handleNavigate = (resId) => {
+        this.props.history.push(`/details?restaurant=${resId}`);
+    }
+    handlePageChange = (page) => {
+        const { location, mealtype, cuisine, sort, lcost, hcost } = this.state;
+
+        const filterObj = {
+            mealtype: mealtype,
+            location: location,
+            cuisine: cuisine.length === 0 ? undefined : cuisine,
+            lcost,
+            hcost,
+            sort,
+            page
+        };
+
+        axios({
+            url: 'http://localhost:2022/filter',
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            data: filterObj
+        })
+            .then(response => {
+                this.setState({ restaurants: response.data.restaurants, page, pageCount: response.data.pageCount })
+            })
+            .catch()
     }
 
     render() {
-        const { restaurants, itemsModalIsOpen, formModalIsOpen, menuItems, subTotal, galleryModalIsOpen, paymentmodalisopen } = this.state;
+        const { restaurants, locations,pageCount } = this.state;
         return (
-            <div style={{ height: '20px' }}>
+            <div style={{height:'20px'}}>
                 <div className="container-fluid header">
                     <div className="row">
                         <div className="col-lg-7 col-md-6 col-sm-6 g-0 text-start ms-sm-2">
                             <span className="logo-span ">
-                                <NavLink to="/" className="logoAcc" > e! </NavLink>
+                            <NavLink to="/" className="logoAcc" > e! </NavLink>
                             </span>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <img src={`./${restaurants.image}`} alt="Sorry for the Inconvinience" className="de_img" height="350px" />
+                <div className="container t-text">Restaurants for you</div>
+                <div className="container">
+                    <div className="row text-start">
+                        <div className="col-lg-4 col-md-6 col-sm-6 ">
+                            <div className="collaps-div">
+                                <span className="collaps-span ">Filters / Sort</span>
+                                <span className="fas fa-chevron-down me-3 mt-3 float-end " id="hide" aria-expanded="false" data-bs-toggle="collapse" data-bs-target="#filter"></span>
+                            </div>
+                            <div id="filter" className="collaps show">
+                                <p className="filter-div mt-4">filter</p>
+                                <div className="loc">Select Location</div>
+                                <select className="select" onChange={this.handleLocationChange}>
+                                    <option value="0">Select</option>
+                                    {locations.map((item) => {
+                                return <option key={item.location_id} value={item.location_id}>{`${item.name}, ${item.city}`}</option>
+                            })}
+                                   
+                                </select>
+                                <b className="Cuisine">Cuisine</b>
+                                <div className="checkbox-div">
+                                    <div> <input type="checkbox" className="check-box" onChange={() => this.handleCuisineChange(1)} />
+                                        <label className="check">North Indian </label>
+                                    </div>
+                                    <div> <input type="checkbox" className="check-box" onChange={() => this.handleCuisineChange(2)}/>
+                                        <label className="check">South Indian</label>
+                                    </div>
+                                    <div> <input type="checkbox" className="check-box" onChange={() => this.handleCuisineChange(3)} />
+                                        <label className="check">Chinese </label>
+                                    </div>
+                                    <div> <input type="checkbox" className="check-box" onChange={() => this.handleCuisineChange(4)}/>
+                                        <label className="check">Fast Food </label>
+                                    </div>
+                                    <div> <input type="checkbox" className="check-box" onChange={() => this.handleCuisineChange(5)}/>
+                                        <label className="check">Street Food </label>
+                                    </div>
+                                </div>
+                                <div className="cost">Cost For Two
+                                    <div> <input type="radio" className="cost-two " value="1" name="Ccost"  onChange={() => this.handleCostChange(1, 500)}/>
+                                        <label className="c-leb ">Less than &#8377;500
+                                        </label>
+                                    </div>
+                                    <div> <input type="radio" className="cost-two pt-1" value="2" name="Ccost" onChange={() => this.handleCostChange(500, 1000)} />
+                                        <label className="c-leb pt-1">&#8377; 500 to &#8377;1000
+                                        </label>
+                                    </div>
+                                    <div> <input type="radio" className="cost-two pt-1" value="3" name="Ccost"  onChange={() => this.handleCostChange(1000, 1500)}/>
+                                        <label className="c-leb pt-1"> &#8377; 1000 to &#8377;1500
+                                        </label>
+                                    </div>
+                                    <div> <input type="radio" className="cost-two pt-1" value="4" name="Ccost" onChange={() => this.handleCostChange(1500, 2000)} />
+                                        <label className="c-leb pt-1">&#8377;1500 to &#8377;2000
+                                        </label>
+                                    </div>
+                                    <div> <input type="radio" className="cost-two pt-1" value="5" name="Ccost" onChange={() => this.handleCostChange(2000, 50000)} />
+                                        <label className="c-leb pt-1"> &#8377; 2000+
+                                        </label>
+                                    </div>
+                                </div>
+                                <div className="Sort">Sort
+                                    <div> <input type="radio" className="Sort-r" value="4" name="cost" onChange={() => this.handleSortChange(1)} />
+                                        <label className="s-leb">Price low to high
+                                        </label>
+                                    </div>
+                                    <div> <input type="radio" className="Sort-r" value="5" name="cost" onChange={() => this.handleSortChange(-1)} />
+                                        <label className="s-leb"> Price high to low
+                                        </label>
+                                    </div>
+                                </div>
+                                    <br/>
+                                <div className="ratediv">
+                                <div className="rate">Rating
+                                    <div> <input type="radio" className="rate-r" value="4" name="Rate" onChange={() => this.handleRating(1 ,2)} />
+                                        <label className="r-leb">Ratings 1 - 2 
+                                        </label>
+                                    </div>
+                                    <div> <input type="radio" className="rate-r" value="5" name="Rate" onChange={() => this.handleRating(2 , 3)} />
+                                        <label className="r-leb"> Ratings 2 - 3
+                                        </label>
+                                    </div>
+                                    <div> <input type="radio" className="rate-r" value="4" name="Rate" onChange={() => this.handleRating(3,4)} />
+                                        <label className="r-leb">Ratings 3 - 4 
+                                        </label>
+                                    </div>
+                                    <div> <input type="radio" className="rate-r" value="5" name="Rate" onChange={() => this.handleRating(4,5)} />
+                                        <label className="r-leb"> Ratings 4 - 5
+                                        </label>
+                                    </div>
+                                </div>
+                                </div>
 
-                    <button className="button" onClick={() => this.handleModalState('galleryModalIsOpen', true)} >Click to see Gallery</button>
-                </div>
-                <div className="heading">{restaurants.name}</div>
-                <button className="btn btn-order" onClick={this.handleOrder}>Place Online Order</button>
-                <div className="tabs">
-                    <div className="tab">
-                        <input type="radio" className="btn-check " id="tab-1" name="tab-group-1" checked />
-                        <label className="btn btn-outline-danger" for="tab-1"  >Overview</label>
-                        <div className="content">
-                            <div className="about">About this place</div>
-                            <div className="head">Cuisine</div>
-                            <div className="value">{restaurants && restaurants.cuisine && restaurants.cuisine.map(item => `${item.name}, `)}</div>
-                            <div className="head">Average Cost</div>
-                            <div className="value">&#8377; {restaurants.min_price} for two people(approx)</div>
-                        </div>
-                    </div>
-                    <div className="tab">
-                        <input type="radio" className="btn-check" id="tab-2" name="tab-group-1" />
-                        <label for="tab-2" className="btn btn-outline-danger">Contact</label>
-                        <div className="content">
-                            <div className="head">Phone Number</div>
-                            <div className="value">{restaurants.contact_number}</div>
-                            <div className="head">{restaurants.name}</div>
-                            <div className="value">{`${restaurants.locality}, ${restaurants.city}`}</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="modal-div">
-                    <Modal
-                        isOpen={itemsModalIsOpen}
-                        style={customStyles}
 
-                    >
-                        <div>
-                            <div style={{ padding: '20px' }} >
-                                <div className="fas fa-times close-btnP" onClick={() => this.handleCloseModal('itemsModalIsOpen', false)}></div>
-                                <div >
-                                    <h3 className="restaurant-name">{restaurants.name}</h3>
-                                    <h3 className="item-total">SubTotal :{subTotal}</h3>
-                                    <button className="btn btn-danger order-button" onClick={this.handlePay}> Pay Now</button>
-                                    {menuItems.map((item, index) => {
-                                        return <div className="card">
-                                            <div className="card-body" style={{ padding: '15px 20px 5px 20px' }} >
-                                                <div className="row">
-                                                    <div className="col-xs-6 col-sm-6 col-md-9 col-lg-9 ">
-                                                        <span className="D-body">
-                                                            <h5 className="item-name" >{item.name}</h5>
-                                                            <h5 className="item-price">&#8377;{item.price}</h5>
-                                                            <p className="item-descp">{item.description}</p>
-                                                        </span>
-                                                    </div>
-                                                    <div className="col-xs-6 col-sm-6 col-md-3 col-lg-3"> <img className="card-img-center title-img" src={`../${item.image}`} />
-                                                        {item.qty == 0 ? <div><button className="btn add-button" onClick={() => this.addItems(index, 'add')}>Add</button></div> :
-                                                            <div className=" add-number"><button className="btn btn-sub p-0" style={{ width: '20px', height: '29px', color: '#61b246' }} onClick={() => this.addItems(index, 'subtract')}>-</button><span style={{ backgroundColor: 'white', width: '20px', marginLeft: '3px' }}>{item.qty}</span><button className="btn btn-add p-0" style={{ width: '29px', height: '29px', border: "none", marginLeft: '5px', color: '#61b246' }} onClick={() => this.addItems(index, 'add')}>+</button></div>}
-                                                    </div>
-                                                </div>
-                                            </div>
+
+                                <button type="button" className="btn btn-outline-danger apply-btn">Apply </button>
+                            </div>
+                        </div>
+                        <div className="col-lg-8 col-md-6 col-sm-6 mt-1 g-0 ">
+                            {restaurants.length > 0 ? restaurants.map((item, index) => {
+                                return <div className="col-lg-12 col-md-6 col-sm-6 g-0 shadow " key={index} onClick={() => this.handleNavigate(item._id)}>
+                                    <div className="col-lg-5 col-md-6 col-sm-6 img-box g-0 ">
+                                        <img src={`./${item.image}`} alt="No Image, Sorry for the Inconvinience" className="top-image" />
+                                    </div>
+
+                                    <div className=" headdiv col-lg-7 col-md-6 col-sm-6  ">
+                                        <h1 className="TheBig">{item.name}</h1>
+                                        <div className="FORT">{item.locality}</div>
+                                        <div className="Shop1">{item.city}</div>
+                                        <div className="Shop1">Ratings:{item.aggregate_rating}</div>
+                                        <hr className="line" />
+                                        <div className="t-Cuisine">Cuisine
+                                            <span className="Bakery "> {item.cuisine}</span>
+                                            <br /> Cost For Two
+                                            <span className="Bakery2"> {item.min_price}</span>
+
+
+
+
                                         </div>
-                                    })}
-                                    <div className="card">
 
                                     </div>
                                 </div>
-                            </div>
+                            }) :<div className="col-lg-12 col-md-6 col-sm-6 g-0 shadow ">
+                                <div class="no-records">Sorry. No result found</div></div>}
+
+
                         </div>
-                    </Modal>
-                    <Modal
-                        isOpen={formModalIsOpen}
-                        style={customStyles}
-
-                    >
-                        <div className="fas fa-times close-btnF" onClick={() => this.handleCloseModal('formModalIsOpen', false)}></div>
-                        <div style={{ padding: '20px' }} >
-                            <h3 className="restaurant-name">{restaurants.name}</h3>
-                            <span> <label className="NameH">firstname</label>
-                                <input type="text" placeholder="enter your name" className="form-control" onChange={(event) => this.handleInputChange(event, 'firstname')} /></span>
-                            <span>  <label className="NameH">lastname</label>
-                                <input type="text" placeholder="enter your name" className="form-control" onChange={(event) => this.handleInputChange(event, 'lastname')} /></span>
-                            <label className="Name">E-mail</label>
-                            <input type="email" placeholder="enter your name" className="form-control" required onChange={(event) => this.handleInputChange(event, 'email')} />
-                            <label className="Name">Ph.number</label>
-                            <input type="tel" placeholder="enter your number" className="form-control" required onChange={(event) => this.handleInputChange(event, 'phNumber')} />
-                            <label className="Name">Address</label>
-                            <textarea type="text" placeholder="enter your address" className="form-control text-area" onChange={(event) => this.handleInputChange(event, 'address')} />
-                            <button className="btn btn-danger PROCEED" onClick={this.handleorders}>PROCEED </button>
-                        </div>
-                    </Modal>
-
-                    <Modal
-                        isOpen={paymentmodalisopen}
-                        style={customStyles}
-
-                    >
-                        <div className="fas fa-times close-btnF" onClick={() => this.handleCloseModal('paymentmodalisopen', false)}></div>
-                        <div className="PAYMENT-DIV">
-                        <div className="payheading">{restaurants.name}</div>
-                        <h3 className="payitem-total">SubTotal: {subTotal}</h3>
-                        <div>
-                    {menuItems.length >1 ?menuItems.filter((filt )=> filt == filt.qty=== filt.qty<1).map((item, index) => {
-                        
-                        return <div key={index}>
-                                            <div>
-                                            <img style={{borderRadius:'50px',padding:'3px',marginLeft:'11px'}} src={`./${item.image}`} alt="Sorry" height="50px" width="50px" />
-                                                <span className="payitem-name">{item.name}Quantity:-{item.qty}</span>
-                                            </div>
-                                        </div>
-                                    }): null }
-
-
-                                </div>
-                           
-                    <button className="btn btn-danger PROCEED" onClick={this.Payment}> pay </button>
-                      
                     </div>
-
-                    </Modal>
-
-
-
-
-
-
-                    <div style={{ backgroundColor: 'black' }}>
-                        <Modal
-                            isOpen={galleryModalIsOpen}
-                            style={customStyles}
-
-                        >
-                            <div className="fas fa-times close-btn" onClick={() => this.handleCloseModal('galleryModalIsOpen', false)}></div>
-                            <div className="carl">
-                                <Carousel
-                                    infiniteLoop={false}
-                                    showThumbs={false}
-                                    autoPlay={false}
-
-                                >
-                                    {restaurants && restaurants.thumb && restaurants.thumb.map((image) => {
-                                        return <div className="car_img">
-                                            <img src={image} className="carl_img" alt="Sorry for the Inconvinience" />
-                                        </div>
-                                    })}
-
-                                </Carousel>
-                            </div>
-
-                        </Modal>
+                    <div>
+                       { restaurants.length > 0 ? <div className="pagination">
+                            <div className="page-link" href="#">&laquo;</div>
+                            { pageCount.map((page)=>{
+                                return<div onClick={() => this.handlePageChange(page)} className="page-item">{page}</div>
+                            })}
+                            <div className="page-link" href="#">&raquo;</div>
+                        </div>:null }
                     </div>
+                  
+
                 </div>
             </div>
 
+
         )
-
-
     }
 }
-
-export default Details;
+export default Filter;

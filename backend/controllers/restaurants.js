@@ -15,7 +15,7 @@ exports.filterRestaurant = (req, res) => {
         const sort = reqBody.sort ? reqBody.sort : 1;
         const page = reqBody.page ? reqBody.page : 1;
 
-        const perPageCount = reqBody.perPageCount ? reqBody.perPageCount : 3;
+        const perPageCount = reqBody.perPageCount ? reqBody.perPageCount : 2;
         const startIndex = (page * perPageCount) - perPageCount;
         const endIndex = (page * perPageCount);
 
@@ -135,7 +135,7 @@ exports.filterRestaurant = (req, res) => {
 
         Restaurant.find(filterPayload).sort({ min_price: sort })
             .then(response => {
-                const count = Math.ceil(response.length / 3);
+                const count = Math.ceil(response.length / 2);
                 const pageCountArr = [];
                 const filteredResponse = response.slice(startIndex, endIndex);
                 for (var i = 1; i <= count; i++) {            pageCountArr.push(i);        }

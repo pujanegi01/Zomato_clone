@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-
 import Wallpaper from './wallpaper';
 import Quick from './quick';
 

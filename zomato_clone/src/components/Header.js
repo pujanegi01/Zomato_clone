@@ -4,7 +4,7 @@ import Modal from 'react-modal';
 import GoogleLogin from 'react-google-login';
 import FacebookLogin from 'react-facebook-login';
 import axios from 'axios';
-import alert from 'alert';
+//import alert from 'alert';
 import {withRouter} from 'react-router-dom';
 
 const customStyles = {
@@ -87,7 +87,7 @@ class Header extends React.Component {
                     address:address,
                     });
                     alert(response.data.message)
-
+                   
             }
 
         })

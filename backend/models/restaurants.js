@@ -10,9 +10,17 @@ const restaurantsSchema = new schema({
         type: String,
         require: true
     },
+    locality:{
+        type: String,
+        require: true
+    },
     city: {
         type: String,
         require: true
+    },
+    aggregate_rating: {
+        type: Number,
+        require:true
     },
     location_id: {
         type: Number,

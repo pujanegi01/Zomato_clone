@@ -6,7 +6,6 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
     "@testing-library/user-event": "^13.5.0",
-    "alert": "^5.0.10",
     "axios": "^0.27.2",
     "bootstrap-icons": "^1.8.1",
     "query-string": "^7.1.1",
@@ -33,7 +32,7 @@
       "react-app/jest"
     ]
   },
-   "browserslist": {
+  "browserslist": {
     "production": [
       ">0.2%",
       "not dead",
@@ -44,5 +43,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "browser": {
+    "child_process": false
   }
 }

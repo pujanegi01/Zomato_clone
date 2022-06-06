@@ -37,6 +37,10 @@ const restaurantsSchema = new schema({
     mealtype_id: {
         type: Number,
         require: true
-    }
+    },
+     image: {
+         type: String,
+         required: true
+     }
 })
 module.exports = mongoose.model('restaurants', restaurantsSchema, 'restaurants');

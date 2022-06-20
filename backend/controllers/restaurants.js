@@ -149,7 +149,8 @@ exports.filterRestaurant = (req, res) => {
     //api restaurantByLoc
 exports.getRestaurantsByLocation = (req, res) => {
         const { locationId } = req.params;
-        Restaurant.find({ location_id: locationId })
+        console.log(locationId);
+        Restaurant.find({location_id:locationId })
             .then(response => {
                 res.status(200).json({ message: "Restaurants Fetched Succesfully", restaurants: response })
             }).catch(err => {
@@ -157,11 +158,11 @@ exports.getRestaurantsByLocation = (req, res) => {
             })
     }
     //api restaurantById
-exports.getRestaurantsDetailsById = (req, res) => {
+exports.getRestaurantDetailsById = (req, res) => {
     const { resId } = req.params;
     Restaurant.findById(resId)
         .then(response => {
-            res.status(200).json({ message: "Restaurants Fetched Succesfully", restaurants: response })
+            res.status(200).json({ message: "Restaurants Fetched Succesfully", restaurant: response })
         }).catch(err => {
             res.status(500).json({ error: err })
         })

@@ -32,7 +32,7 @@ exports.getorders = (req, res, next) => {
 
 exports.getordersById = (req, res) => {
     const { email } = req.params;
-    orders.find({ "email": email })
+    orders.find({ email: email })
         .then(response => {
             res.status(200).json({ message: "order Fetched Succesfully", orders: response })
         }).catch(err => {

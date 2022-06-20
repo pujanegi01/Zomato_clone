@@ -322,7 +322,8 @@ class Filter extends React.Component {
                         </div>
                         <div className="col-lg-8 col-md-6 col-sm-6 mt-1 g-0 ">
                             {restaurants.length > 0 ? restaurants.map((item, index) => {
-                                return <div className="col-lg-12 col-md-6 col-sm-6 g-0 shadow " key={index} onClick={() => this.handleNavigate(item._id)}>
+                                console.log(item);
+                                return <div className="col-lg-12 col-md-6 col-sm-6 g-0 shadow " key={item._id} onClick={() => this.handleNavigate(item._id)}>
                                     <div className="col-lg-5 col-md-6 col-sm-6 img-box g-0 ">
                                         <img src={`./${item.image}`} alt="No Image, Sorry for the Inconvinience" className="top-image" />
                                     </div>
@@ -334,13 +335,12 @@ class Filter extends React.Component {
                                         <div className="Shop1">Ratings:{item.aggregate_rating}</div>
                                         <hr className="line" />
                                         <div className="t-Cuisine">Cuisine
-                                            <span className="Bakery "> {item.cuisine}</span>
+                                        {item.cuisine.map(el=>{
+                                           return <span className="Bakery "> {el.name}</span>
+                                        })}
+                                    
                                             <br /> Cost For Two
                                             <span className="Bakery2"> {item.min_price}</span>
-
-
-
-
                                         </div>
 
                                     </div>

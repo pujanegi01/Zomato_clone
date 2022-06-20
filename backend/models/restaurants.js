@@ -2,10 +2,6 @@ const mongoose = require("mongoose");
 const schema = mongoose.Schema;
 
 const restaurantsSchema = new schema({
-    id: {
-        type: Number,
-        require: true
-    },
     name: {
         type: String,
         require: true
@@ -30,6 +26,14 @@ const restaurantsSchema = new schema({
         type: Number,
         require: true
     },
+    thumb: {
+        type: Array,
+        required: true
+    },
+    aggregate_rating: {
+        type: Number,
+        required: true
+    },
     min_price: {
         type: Number,
         require: true
@@ -45,10 +49,6 @@ const restaurantsSchema = new schema({
     mealtype_id: {
         type: Number,
         require: true
-    },
-     image: {
-         type: String,
-         required: true
-     }
+    }
 })
 module.exports = mongoose.model('restaurants', restaurantsSchema, 'restaurants');

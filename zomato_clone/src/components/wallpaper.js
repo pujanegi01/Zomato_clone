@@ -28,6 +28,7 @@ class Wallpaper extends React.Component {
     }
     handleInput=(event) =>{
         const{restaurants}= this.state;
+        console.log(restaurants)
         const  searchField = event.target.value;
         let searchrest =[];
 

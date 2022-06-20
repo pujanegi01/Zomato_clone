@@ -18,14 +18,14 @@ exports.getlogein = (req, res) => {
 
 
 exports.getsignin = (req, res, next) => {
-    const { email, password, firstname, lastname, phNumber, address } = req.body;
+    const { email, password, firstname, lastname} = req.body;
     user.find({ email: email })
         .then(response => {
             if (response.length >= 1) {
                 res.status(200).json({ message: "user already exist", user: response })
 
             } else {
-                const usersignedin = new user({ email: email, password: password, firstname: firstname, lastname: lastname, phNumber: phNumber, address: address });
+                const usersignedin = new user({ email: email, password: password, firstname: firstname, lastname: lastname });
                 usersignedin.save().then(response => {
                         res.status(200).json({ message: "user registerd Succesfully", user: response })
                     })

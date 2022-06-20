@@ -4,6 +4,7 @@ import{withRouter} from 'react-router-dom'
 
 class Quick extends React.Component{
     handleNavigate = (mealTypeId) => {
+        console.log(mealTypeId);
         const locationId = sessionStorage.getItem('locationId');
         if (locationId) {
             this.props.history.push(`/filter?mealtype=${mealTypeId}&location=${locationId}`);
@@ -30,7 +31,8 @@ class Quick extends React.Component{
 
             <div className="row g-0 mt-3 Hboxes">
                 {mealtypesData.map((item)=>{
-                    return <div  onClick={() => this.handleNavigate(item._id)} key={item._id} className="col-lg-4 col-md-6 col-sm-12 g-0  Hshadow-box">
+                    console.log(item)
+                    return <div  onClick={() => this.handleNavigate(item.meal_type)} key={item.meal_type} className="col-lg-4 col-md-6 col-sm-12 g-0  Hshadow-box">
 
                     <div name="left" className="Hitem-left">
                         <img src={`./${item.image}`} alt="Sorry for the Inconvinience" height="100%" width="100%" />

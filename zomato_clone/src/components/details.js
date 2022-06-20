@@ -68,7 +68,7 @@ class Details extends React.Component {
         })
             .then(respone => {
                 this.setState({ menuItems: respone.data.items })
-            })
+                    })
             .catch()
 
         this.setState({ itemsModalIsOpen: true, menuItems  })
@@ -92,13 +92,21 @@ class Details extends React.Component {
         const item = items[index];
 
         if (operationType === 'add') {
-            item.qty += 1;
+            if(item.qty>0){
+                item.qty += 1;
+            }
+            else{
+                item.qty = 1;
+            }
         }
         else {
-            item.qty -= 1;
+            if(item.qty>0){
+                item.qty -= 1;
+            }
         }
         items[index] = item;
         items.map((item) => {
+            console.log(item.qty+item.price);
             total += item.qty * item.price;
         })
         this.setState({ menuItems: items, subTotal: total });
@@ -252,7 +260,7 @@ class Details extends React.Component {
                         <div className="content">
                             <div className="about">About this place</div>
                             <div className="head">Cuisine</div>
-                            <div className="value">{restaurants && restaurants.cuisine}</div>
+                            <div className="value">{restaurants.cuisine?.map(e1=>e1.name)}</div> 
                             <div className="head">Average Cost</div>
                             <div className="value">&#8377; {restaurants.min_price} for two people(approx)</div>
                         </div>
@@ -293,7 +301,8 @@ class Details extends React.Component {
                                                         </span>
                                                     </div>
                                                     <div className="col-xs-6 col-sm-6 col-md-3 col-lg-3"> <img className="card-img-center title-img" src={`../${item.image}`} />
-                                                        {item.qty === 0 ? <div><button className="btn add-button" onClick={() => this.addItems(index, 'add')}>Add</button></div> :
+                                                    
+                                                        {item.qty < 1 ? <div><button className="btn add-button" onClick={() => this.addItems(index, 'add')}>Add</button></div> :
                                                             <div className=" add-number"><button className="btn btn-sub p-0" style={{ width: '20px', height: '29px', color: '#61b246' }} onClick={() => this.addItems(index, 'subtract')}>-</button><span style={{ backgroundColor: 'white', width: '20px', marginLeft: '3px' }}>{item.qty}</span><button className="btn btn-add p-0" style={{ width: '29px', height: '29px', border: "none", marginLeft: '5px', color: '#61b246' }} onClick={() => this.addItems(index, 'add')}>+</button></div>}
                                                     </div>
                                                 </div>
@@ -367,6 +376,7 @@ class Details extends React.Component {
                         <Modal
                             isOpen={galleryModalIsOpen}
                             style={customStyles}
+                            ariaHideApp={false}
 
                         >
                             <div className="fas fa-times close-btn" onClick={() => this.handleCloseModal('galleryModalIsOpen', false)}></div>

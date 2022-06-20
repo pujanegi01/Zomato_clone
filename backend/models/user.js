@@ -18,15 +18,7 @@ const userSchema = new Schema({
     lastname: {
         type: String,
         required: true
-    },
-    phNumber: {
-        type: Number,
-        required: true
-    },
-    address: {
-        type: String,
-        required: true
-    },
+    }
 })
 
 module.exports = mongoose.model('user', userSchema, 'user'); // exporting the model

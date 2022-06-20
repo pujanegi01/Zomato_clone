@@ -5,10 +5,7 @@ const Schema = mongoose.Schema;
 
 // Registering the City Schema
 const locationSchema = new Schema({
-    _id: {
-        type: Number,
-        required: true
-    },
+   
     name: {
         type: String,
         required: true

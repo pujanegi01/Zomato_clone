@@ -13,7 +13,7 @@
     //route.get('/locations/:LocId', locationcontroller.getLocationById);
     route.post('/filter', restaurantController.filterRestaurant);
     route.get('/restaurants/:locationId', restaurantController.getRestaurantsByLocation);
-    route.get('/restaurant/:resId', restaurantController.getRestaurantsDetailsById);
+    route.get('/restaurant/:resId', restaurantController.getRestaurantDetailsById);
     route.get('/menuitems/:resId', menuItemsController.getMenuItemsByRestaurant);
     route.post('/login', userController.getlogein);
     route.post('/signup', userController.getsignin);
